@@ -170,15 +170,14 @@ echo
 echo "*** Blocking some websites"
 echo
 
-# first delete then re-add (not combining so if not found will still re-add)
+# first delete then re-add (not combining so if delete not found will still re-add)
+sed -i -e '\@youtube.com@d' /etc/hosts
+sed -i -e '\@facebook.com@d' /etc/hosts
+ 
 sed -i \
-    -e '\@youtube.com@d' \
-    -e '\@facebook.com@d' \
-    /etc/hosts
-
-sed -i \
-    -e '$a 127.0.0.1 youtube.com' \
-    -e '$a 127.0.0.1 facebook.com' \
+    -e '$a 127.0.0.1 www.youtube.com' \
+    -e '$a 127.0.0.1 m.youtube.com' \
+    -e '$a 127.0.0.1 www.facebook.com' \
     /etc/hosts
 
 echo
