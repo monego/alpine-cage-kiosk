@@ -34,8 +34,6 @@
 #           This would be nice in our case but not with 2gb total ram!
 # 		2. erase disk and continue
 # 	11. reboot
-#
-
 
 if [ $(id -u) -ne 0 ]
 then
