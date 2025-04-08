@@ -2,8 +2,6 @@
 
 # Configure an Alpine system to use cage to launch firefox at boot.
 #
-# Cage sourcecode: https://github.com/cage-kiosk/cage?tab=readme-ov-file
-#
 # Script notes:
 #   - Change the urls to the tabs you want to open by default
 #   - Keep the username "cage" this will be created and used for firefox.
