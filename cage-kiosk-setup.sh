@@ -2,36 +2,44 @@
 
 # Configure an Alpine system to use cage to launch firefox at boot.
 #
+# Outside of this script you can copy the ffox template profile to your own name
+#   (no spaces in folder name please!), and then edit cage-launch.sh to use
+#   your custom profile as the source for copying to the working profile before
+#   launching firefox in cage. If you later re-run this setup script, you will
+#   need to re-edit cage-launch.sh to make sure it is using your custom profile.
+#
 # Script notes:
 #   - Change the urls to the tabs you want to open by default
-#   - Keep the username "cage" this will be created and used for firefox.
-#   - At bottom you enter what websites you want to block
+#   - Change what websites you want to block
 #       (default is youtube.com and facebook.com)
+#   - Keep the username "cage" this will be created and used for firefox.
 #   - You can re-run this script at any time. It will delete and re-create the ffox
-#   profile, so if you make your own customizations to it, you will lose them. 
+#   template profile, so if you make your own customizations to it, you will lose them.
+#
 #
 # Alpine install notes:
 # 1. boot USB
 # 2. localhost login: root
 # 3. setup-alpine
-# 	1. keyboard
-# 	2. hostname
-# 	3. interface - eth0 and wlan0
-# 	4. root password
-# 	5. timezone
-# 	6. (defaults for proxy and NTP)
-# 	7. apk mirror: just hit enter will get default servers
-# 	8. user (admin - will be used for ssh since root ssh disabled by default
+#   1. keyboard
+#   2. hostname
+#   3. interface - eth0 and wlan0
+#   4. root password
+#   5. timezone
+#   6. (defaults for proxy and NTP)
+#   7. apk mirror: just hit enter will get default servers
+#   8. user (admin - will be used for ssh since root ssh disabled by default
 #       we will later create user "cage" for firefox kiosk use, pick something else!
-# 	9. default ssh server 
-# 	10. disk and install - choose main disk
+#   9. default ssh server 
+#   10. disk and install - choose main disk
 #        Default of "none" would be good for resetting at reboot but would need more
 #        total RAM I am pretty sure)
-# 		1. how to use disk? sys
-#           system installed to disk - otherwise, can use "data" then apk cache and #           config of system on disk but it would only use RAM for the system
+#       1. how to use disk? sys
+#           system installed to disk - otherwise, can use "data" then apk cache and
+#           config of system on disk but it would only use RAM for the system
 #           This would be nice in our case but not with 2gb total ram!
-# 		2. erase disk and continue
-# 	11. reboot
+#       2. erase disk and continue
+#   11. reboot
 
 if [ $(id -u) -ne 0 ]
 then
@@ -44,6 +52,22 @@ fi
 
 USERNAME="cage"
 URLS="'https://openmobile.us' 'https://wastalinux.org' 'https://desertblooms.net'"
+
+echo
+echo "*** Blocking some websites"
+echo
+
+# first delete then re-add (not combining so if delete not found will still re-add)
+sed -i -e '\@youtube.com@d' /etc/hosts
+sed -i -e '\@facebook.com@d' /etc/hosts
+ 
+sed -i \
+    -e '$a 127.0.0.1 www.youtube.com' \
+    -e '$a 127.0.0.1 m.youtube.com' \
+    -e '$a 127.0.0.1 www.facebook.com' \
+    /etc/hosts
+
+# upgrade system
 
 apk update
 apk upgrade
@@ -84,13 +108,15 @@ echo "*** Stopping firefox and re-creating profile: $FFOX_PRO"
 echo
 
 killall firefox
-FFOX_PRO=/home/$USERNAME/ffox-profile/
+FFOX_PRO_DIR=/home/$USERNAME/ffox-profiles
+FFOX_TEMPLATE_PRO=$FFOX_PRO_DIR/template-profile
+FFOX_WORKING_PRO=$FFOX_PRO_DIR/working-profile
 rm -rf /home/$USERNAME/.mozilla/
 rm -rf /home/$USERNAME/.cache/mozilla/
-rm -rf $FFOX_PRO
-mkdir -p $FFOX_PRO
+rm -rf $FFOX_TEMPLATE_PRO
+mkdir -p $FFOX_TEMPLATE_PRO
 
-cat > $FFOX_PRO/user.js<< EOF
+cat > $FFOX_TEMPLATE_PRO/user.js<< EOF
 // do NOT prompt to resume from crash
 user_pref("browser.sessionstore.resume_from_crash", false);
 
@@ -131,9 +157,9 @@ user_pref("datareporting.policy.firstRunURL", "");
 //user_pref("browser.toolbars.bookmarks.visibility", "always");
 EOF
 
-#mkdir -p $FFOX_CONFIG/$FFOX_PRO/chrome
+#mkdir -p $FFOX_TEMPLATE_PRO/chrome
 
-#cat > $FFOX_CONFIG/$FFOX_PRO/chrome/userChrome.css<< EOF
+#cat > $FFOX_TEMPLATE_PRO/chrome/userChrome.css<< EOF
 #.titlebar-buttonbox-container {display:none !important;}
 #EOF
 
@@ -143,8 +169,23 @@ echo
 
 cat > /home/$USERNAME/cage-launch.sh<< EOF
 #!/bin/sh
+
+# cleanup cache and downloads
+rm -rf /home/$USERNAME/.mozilla
+rm -rf /home/$USERNAME/Downloads
+
+# delete working profile
+rm -rf "$FFOX_WORKING_PRO"
+
+# re-create working-profile *if it doesn't exist*
+if ! [ -d "$FFOX_WORKING_PRO" ]; then
+    cp -rf "$FFOX_TEMPLATE_PRO" "$FFOX_WORKING_PRO"
+fi
+
+# launch firefox with pipewire for sound support
 /usr/libexec/pipewire-launcher &
-cage -- firefox --profile "$FFOX_PRO" --kiosk $URLS
+cage -- firefox --profile "$FFOX_WORKING_PRO" --kiosk $URLS
+
 exit 0
 EOF
 
@@ -165,20 +206,6 @@ sed -i -e "s@\(^user =\).*@\1 $USERNAME@" /etc/greetd/config.toml
 
 rc-update add greetd
 rc-service greetd start
-
-echo
-echo "*** Blocking some websites"
-echo
-
-# first delete then re-add (not combining so if delete not found will still re-add)
-sed -i -e '\@youtube.com@d' /etc/hosts
-sed -i -e '\@facebook.com@d' /etc/hosts
- 
-sed -i \
-    -e '$a 127.0.0.1 www.youtube.com' \
-    -e '$a 127.0.0.1 m.youtube.com' \
-    -e '$a 127.0.0.1 www.facebook.com' \
-    /etc/hosts
 
 echo
 echo "*** Done: reboot when ready"
