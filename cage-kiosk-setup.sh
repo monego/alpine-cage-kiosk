@@ -172,7 +172,15 @@ echo
 echo "*** Configuring greetd cage launcher"
 echo
 
-sed -i -e "s@\(^command =\).*@\1 \"cage -s -- /home/$USERNAME/cage-launch.sh\"@" /etc/greetd/config.toml
+cat > /usr/local/bin/cage-env<< EOF
+export WLR_LIBINPUT_NO_DEVICES=1
+
+exec cage "$@"
+EOF
+
+chmod 755 /usr/local/bin/cage-env
+
+sed -i -e "s@\(^command =\).*@\1 \"cage-env -s -- /home/$USERNAME/cage-launch.sh\"@" /etc/greetd/config.toml
 
 sed -i -e "s@\(^user =\).*@\1 $USERNAME@" /etc/greetd/config.toml
 
