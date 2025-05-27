@@ -51,7 +51,7 @@ then
 fi
 
 USERNAME="cage"
-URLS="'https://openmobile.us' 'https://wastalinux.org' 'https://desertblooms.net'"
+URLS="'https://nupedee.ufsm.br/telaoSecretaria'"
 
 echo
 echo "*** Blocking some websites"
