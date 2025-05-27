@@ -132,20 +132,8 @@ user_pref("browser.bookmarks.addedImportButton", false);
 // disable quit shortcut - user can still choose "Quit" from Firefox Menu :-(
 user_pref("browser.quitShortcut.disabled", true);
 
-// Always show sidebar (still needed with revamp?)
-user_pref("sidebar.visibility", "always-show");
-
-// enable persistent sidebar
-user_pref("sidebar.revamp", true);
-
 // disable "ai chatbot"
 user_pref("browser.ml.chat.enabled", false);
-
-// default sidebar to vertical tabs
-user_pref("sidebar.verticalTabs", true);
-
-// remove other options from sidebar (history, etc)
-user_pref("sidebar.main.tools", "");
 
 // do NOT show "Firefox Privacy Notice" or other on "first run"
 user_pref("datareporting.policy.firstRunURL", "");
