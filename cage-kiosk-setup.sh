@@ -83,7 +83,7 @@ echo
 echo "*** Installing packages"
 echo
 
-apk add nano firefox cage greetd font-misc-misc font-noto font-noto-ethiopic font-dejavu pipewire wireplumber
+apk add nano firefox cage greetd font-misc-misc font-noto font-dejavu pipewire wireplumber
 
 # note: Can use 'setup-apkcache' and enter 'none' to configure not to use cache but
 # confusing to check if that is already set, and don't want to prompt user so just doing
