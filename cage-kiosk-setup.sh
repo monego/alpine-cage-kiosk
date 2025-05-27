@@ -10,8 +10,6 @@
 #
 # Script notes:
 #   - Change the urls to the tabs you want to open by default
-#   - Change what websites you want to block
-#       (default is youtube.com and facebook.com)
 #   - Keep the username "cage" this will be created and used for firefox.
 #   - You can re-run this script at any time. It will delete and re-create the ffox
 #   template profile, so if you make your own customizations to it, you will lose them.
@@ -52,20 +50,6 @@ fi
 
 USERNAME="cage"
 URLS="'https://nupedee.ufsm.br/telaoSecretaria'"
-
-echo
-echo "*** Blocking some websites"
-echo
-
-# first delete then re-add (not combining so if delete not found will still re-add)
-sed -i -e '\@youtube.com@d' /etc/hosts
-sed -i -e '\@facebook.com@d' /etc/hosts
- 
-sed -i \
-    -e '$a 127.0.0.1 www.youtube.com' \
-    -e '$a 127.0.0.1 m.youtube.com' \
-    -e '$a 127.0.0.1 www.facebook.com' \
-    /etc/hosts
 
 # upgrade system
 
