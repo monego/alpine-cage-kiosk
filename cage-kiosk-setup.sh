@@ -172,7 +172,7 @@ echo
 echo "*** Configuring greetd cage launcher"
 echo
 
-cat > /usr/local/bin/cage-env<< EOF
+cat > /usr/local/bin/cage-env<< 'EOF'
 export WLR_LIBINPUT_NO_DEVICES=1
 export GDK_BACKEND=wayland
 export QT_QPA_PLATFORM=wayland
